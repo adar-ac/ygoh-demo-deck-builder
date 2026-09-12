@@ -82,53 +82,77 @@ th = st.session_state[TH_KEY]
 
 if th["siding"]:
     st.subheader("🔁 Side Deck")
-    st.caption("Move cards between your Main/Extra pool and your Side pool. "
-               "You must move the same number of cards each way before confirming.")
+    st.caption(
+        "Set how many copies of each card to swap. The total moving OUT to Side must equal the "
+        "total moving IN from Side before you can confirm — same as real sideboarding rules. "
+        "(Streamlit doesn't support real drag-and-drop, so this is the click/stepper equivalent.)"
+    )
 
-    pool_counter = Counter(th["test_main"] + th["test_extra"])
-    side_counter = Counter(th["test_side"])
-    pool_names = {cid: card(cid)["name"] for cid in pool_counter if card(cid)}
-    side_names = {cid: card(cid)["name"] for cid in side_counter if card(cid)}
+    moves_out = st.session_state.setdefault("side_moves_out", {})
+    moves_in = st.session_state.setdefault("side_moves_in", {})
 
-    colA, colB = st.columns(2)
-    with colA:
-        st.markdown("**Main + Extra**")
-        out_ids = st.multiselect(
-            "Move OUT to Side",
-            options=list(pool_counter.keys()),
-            format_func=lambda cid: f"{pool_names.get(cid, cid)} (have {pool_counter[cid]})",
-            key="side_out",
-        )
-    with colB:
-        st.markdown("**Side Deck**")
-        in_ids = st.multiselect(
-            "Move IN from Side",
-            options=list(side_counter.keys()),
-            format_func=lambda cid: f"{side_names.get(cid, cid)} (have {side_counter[cid]})",
-            key="side_in",
-        )
+    def zone_mover(ids, title, moves_dict, key_prefix, move_label):
+        counter = Counter(ids)
+        st.markdown(f"**{title}** ({len(ids)})")
+        if not counter:
+            st.caption("(empty)")
+            return
+        with st.container(height=420, border=True):
+            for cid, n in sorted(counter.items(), key=lambda kv: (card(kv[0]) or {}).get("name", "")):
+                c = card(cid)
+                if not c:
+                    continue
+                row = st.columns([1, 3, 2])
+                with row[0]:
+                    img = c.get("image_url_small") or c.get("image_url")
+                    st.markdown(ui_cards.thumbnail_html(img, width=44, height=64), unsafe_allow_html=True)
+                with row[1]:
+                    st.markdown(f"<div style='font-size:0.78rem'><b>{c['name']}</b><br>have {n}</div>",
+                                unsafe_allow_html=True)
+                with row[2]:
+                    current = moves_dict.get(cid, 0)
+                    moves_dict[cid] = st.number_input(
+                        move_label, min_value=0, max_value=n, value=min(current, n),
+                        key=f"{key_prefix}_{cid}", label_visibility="collapsed",
+                    )
 
-    n_out, n_in = len(out_ids), len(in_ids)
-    st.write(f"Moving out: **{n_out}** — Moving in: **{n_in}**")
+    col_main, col_extra, col_side = st.columns(3)
+    with col_main:
+        zone_mover(th["test_main"], "Main Deck", moves_out, "mv_out_main", "Move to Side")
+    with col_extra:
+        zone_mover(th["test_extra"], "Extra Deck", moves_out, "mv_out_extra", "Move to Side")
+    with col_side:
+        zone_mover(th["test_side"], "Side Deck", moves_in, "mv_in_side", "Move to Main/Extra")
+
+    n_out, n_in = sum(moves_out.values()), sum(moves_in.values())
+    st.write(f"Moving OUT to Side: **{n_out}** — Moving IN from Side: **{n_in}**")
     can_confirm = n_out == n_in and n_out > 0
 
     b1, b2 = st.columns(2)
     with b1:
         if st.button("✅ Confirm", disabled=not can_confirm, type="primary", use_container_width=True):
-            for cid in out_ids:
-                if cid in th["test_main"]:
-                    th["test_main"].remove(cid)
-                elif cid in th["test_extra"]:
-                    th["test_extra"].remove(cid)
-                th["test_side"].append(cid)
-            for cid in in_ids:
-                th["test_side"].remove(cid)
-                c = card(cid)
-                if c is not None and deck_manager.is_extra_deck_type(c["type"]):
-                    th["test_extra"].append(cid)
-                else:
-                    th["test_main"].append(cid)
+            for cid, n in moves_out.items():
+                for _ in range(n):
+                    if cid in th["test_main"]:
+                        th["test_main"].remove(cid)
+                    elif cid in th["test_extra"]:
+                        th["test_extra"].remove(cid)
+                    else:
+                        continue
+                    th["test_side"].append(cid)
+            for cid, n in moves_in.items():
+                for _ in range(n):
+                    if cid not in th["test_side"]:
+                        continue
+                    th["test_side"].remove(cid)
+                    c = card(cid)
+                    if c is not None and deck_manager.is_extra_deck_type(c["type"]):
+                        th["test_extra"].append(cid)
+                    else:
+                        th["test_main"].append(cid)
             th["siding"] = False
+            st.session_state["side_moves_out"] = {}
+            st.session_state["side_moves_in"] = {}
             library = list(th["test_main"])
             random.shuffle(library)
             th["hand"] = library[:5]
@@ -137,6 +161,8 @@ if th["siding"]:
     with b2:
         if st.button("✖️ Cancel", use_container_width=True):
             th["siding"] = False
+            st.session_state["side_moves_out"] = {}
+            st.session_state["side_moves_in"] = {}
             st.rerun()
     st.stop()
 
@@ -158,6 +184,8 @@ with c1:
 with c2:
     if st.button("🔁 Side", use_container_width=True):
         th["siding"] = True
+        st.session_state["side_moves_out"] = {}
+        st.session_state["side_moves_in"] = {}
         st.rerun()
 with c3:
     if st.button("🔀 Reshuffle", use_container_width=True):

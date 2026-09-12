@@ -47,7 +47,7 @@ with st.sidebar:
             st.rerun()
 
     if active:
-        with st.expander("📋 Duplicate / rename / delete"):
+        with st.expander("📋 Duplicate deck"):
             dup_name = st.text_input("Duplicate as", value=f"{active} copy", key="dup_name")
             if st.button("Duplicate", key="dup_btn"):
                 src = deck_manager.load_deck(user, active)
@@ -57,20 +57,7 @@ with st.sidebar:
                 deck_manager.save_deck(user, new)
                 st.session_state.active_deck_name = nm
                 st.rerun()
-
-            rename_to = st.text_input("Rename to", value=active, key="rename_to")
-            if st.button("Rename", key="rename_btn") and rename_to.strip() and rename_to != active:
-                d = deck_manager.load_deck(user, active)
-                d["name"] = unique_name(rename_to.strip())
-                deck_manager.save_deck(user, d, old_name=active)
-                st.session_state.active_deck_name = d["name"]
-                st.rerun()
-
-            if st.button("🗑️ Delete this deck", key="delete_btn"):
-                deck_manager.delete_deck(user, active)
-                deck_manager.clear_undo(active)
-                st.session_state.active_deck_name = None
-                st.rerun()
+        st.caption("Rename or delete the active deck with the ✏️ / 🗑️ buttons up top, next to its name.")
 
     with st.expander("📥 Import deck"):
         import_name = st.text_input("New deck name", key="import_name", value="Imported Deck")
@@ -101,7 +88,24 @@ fmt = deck.get("format", "Advanced Format")
 
 top = st.columns([2, 2, 1, 1])
 with top[0]:
-    st.subheader(deck["name"])
+    name_row = st.columns([4, 1, 1])
+    name_row[0].subheader(deck["name"])
+    with name_row[1].popover("✏️", help="Rename this deck"):
+        rename_to = st.text_input("Rename to", value=active, key=f"rename_to_{active}")
+        if st.button("Save name", key=f"rename_save_{active}"):
+            if rename_to.strip() and rename_to.strip() != active:
+                d = deck_manager.load_deck(user, active)
+                d["name"] = unique_name(rename_to.strip())
+                deck_manager.save_deck(user, d, old_name=active)
+                st.session_state.active_deck_name = d["name"]
+                st.rerun()
+    with name_row[2].popover("🗑️", help="Delete this deck"):
+        st.write(f"Delete **{active}**? This can't be undone.")
+        if st.button("Yes, delete it", key=f"delete_confirm_{active}", type="primary"):
+            deck_manager.delete_deck(user, active)
+            deck_manager.clear_undo(active)
+            st.session_state.active_deck_name = None
+            st.rerun()
 with top[1]:
     new_fmt = ui_cards.format_picker(f"active_deck_{active}", label="Banlist format for this deck", default=fmt)
     if new_fmt != fmt:
