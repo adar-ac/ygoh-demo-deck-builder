@@ -1,0 +1,250 @@
+{
+  "_readme": "Curated, illustrative 'Used In' usage stats for notable staple/meta cards, compiled from general TCG meta knowledge (YGOPRODeck deck-search trends / Yu-Gi-Oh! Meta style breakdowns). Approximate, not live tournament data. Cards not listed here fall back to their own archetype tag in the card database. Expand this file over time.",
+  "Ash Blossom & Joyous Spring": [
+    {"deck": "Generic hand trap (played in almost every competitive deck)", "share_pct": 90},
+    {"deck": "Snake-Eye", "share_pct": 40},
+    {"deck": "Kashtira", "share_pct": 35},
+    {"deck": "Purrely", "share_pct": 30}
+  ],
+  "Ghost Ogre & Snow Rabbit": [
+    {"deck": "Generic hand trap / floodgate answer", "share_pct": 55},
+    {"deck": "Kashtira", "share_pct": 25},
+    {"deck": "Yubel", "share_pct": 20}
+  ],
+  "Effect Veiler": [
+    {"deck": "Generic hand trap (Synchro/Control decks)", "share_pct": 60},
+    {"deck": "Blue-Eyes", "share_pct": 15},
+    {"deck": "Branded", "share_pct": 15}
+  ],
+  "Nibiru, the Primal Being": [
+    {"deck": "Generic board-breaker hand trap", "share_pct": 70},
+    {"deck": "Kashtira", "share_pct": 30},
+    {"deck": "Fire King", "share_pct": 20}
+  ],
+  "Droll & Lock Bird": [
+    {"deck": "Generic hand trap (anti-combo)", "share_pct": 55},
+    {"deck": "Yubel", "share_pct": 20},
+    {"deck": "Snake-Eye", "share_pct": 15}
+  ],
+  "Infinite Impermanence": [
+    {"deck": "Generic staple trap", "share_pct": 50},
+    {"deck": "Kashtira", "share_pct": 25},
+    {"deck": "Purrely", "share_pct": 20}
+  ],
+  "Called by the Grave": [
+    {"deck": "Generic staple (anti-hand-trap / anti-GY)", "share_pct": 65},
+    {"deck": "Snake-Eye", "share_pct": 30},
+    {"deck": "Kashtira", "share_pct": 25}
+  ],
+  "Crossout Designator": [
+    {"deck": "Generic staple (anti-hand-trap)", "share_pct": 45},
+    {"deck": "Yubel", "share_pct": 20},
+    {"deck": "Fire King", "share_pct": 15}
+  ],
+  "Triple Tactics Talent": [
+    {"deck": "Snake-Eye", "share_pct": 45},
+    {"deck": "Kashtira", "share_pct": 30},
+    {"deck": "Generic tempo staple", "share_pct": 40}
+  ],
+  "Pot of Desires": [
+    {"deck": "Generic draw power (GY-light decks)", "share_pct": 40},
+    {"deck": "Branded", "share_pct": 20},
+    {"deck": "Fire King", "share_pct": 15}
+  ],
+  "Pot of Prosperity": [
+    {"deck": "Generic draw power / Extra Deck setup", "share_pct": 45},
+    {"deck": "Purrely", "share_pct": 25},
+    {"deck": "Fire King", "share_pct": 20}
+  ],
+  "Forbidden Droplet": [
+    {"deck": "Generic hand trap / floodgate answer", "share_pct": 35},
+    {"deck": "Snake-Eye", "share_pct": 20}
+  ],
+  "Lightning Storm": [
+    {"deck": "Generic board wipe staple", "share_pct": 55}
+  ],
+  "Harpie's Feather Duster": [
+    {"deck": "Generic backrow removal staple", "share_pct": 40}
+  ],
+  "Cosmic Cyclone": [
+    {"deck": "Generic backrow removal staple", "share_pct": 35}
+  ],
+  "Dark Ruler No More": [
+    {"deck": "Generic board-breaker staple", "share_pct": 30},
+    {"deck": "Kashtira", "share_pct": 15}
+  ],
+  "Book of Moon": [
+    {"deck": "Generic tempo/utility staple", "share_pct": 30}
+  ],
+  "Solemn Judgment": [
+    {"deck": "Generic staple negate", "share_pct": 40}
+  ],
+  "Solemn Strike": [
+    {"deck": "Generic staple negate", "share_pct": 35}
+  ],
+  "Bystial Saronir": [
+    {"deck": "Branded", "share_pct": 50},
+    {"deck": "Kashtira", "share_pct": 30},
+    {"deck": "Dragon Link", "share_pct": 25}
+  ],
+  "Bystial Baldrake": [
+    {"deck": "Branded", "share_pct": 45},
+    {"deck": "Kashtira", "share_pct": 25}
+  ],
+  "Kashtira Fenrir": [
+    {"deck": "Kashtira", "share_pct": 85},
+    {"deck": "Splashed banish tech (various)", "share_pct": 20}
+  ],
+  "Kashtira Unicorn": [
+    {"deck": "Kashtira", "share_pct": 90}
+  ],
+  "Snake-Eye Ash": [
+    {"deck": "Snake-Eye", "share_pct": 80},
+    {"deck": "Fire King", "share_pct": 20}
+  ],
+  "Snake-Eye Poplar": [
+    {"deck": "Snake-Eye", "share_pct": 85}
+  ],
+  "Fire King High Avatar Garunix": [
+    {"deck": "Fire King", "share_pct": 90}
+  ],
+  "Purrely": [
+    {"deck": "Purrely", "share_pct": 90}
+  ],
+  "Tearlaments Kitkallos": [
+    {"deck": "Tearlaments", "share_pct": 85}
+  ],
+  "Tearlaments Scheiren": [
+    {"deck": "Tearlaments", "share_pct": 80}
+  ],
+  "Kaiju Sea Rex Kingaiju": [
+    {"deck": "Generic Kaiju package (control decks)", "share_pct": 40}
+  ],
+  "S:P Little Knight": [
+    {"deck": "Generic Extra Deck staple (Swordsoul, Branded, Kashtira)", "share_pct": 55},
+    {"deck": "Swordsoul", "share_pct": 40}
+  ],
+  "Baronne de Fleur": [
+    {"deck": "Generic Extra Deck staple (Branded, Runick)", "share_pct": 45},
+    {"deck": "Branded", "share_pct": 35}
+  ],
+  "Underworld Goddess of the Closed World": [
+    {"deck": "Yubel", "share_pct": 60},
+    {"deck": "Generic Fusion splash", "share_pct": 20}
+  ],
+  "Selene, Queen of the Master Magicians": [
+    {"deck": "Generic Extra Deck staple (Spellcaster/Runick)", "share_pct": 35}
+  ],
+  "Divine Arsenal AA-ZEUS - Sky Thunder": [
+    {"deck": "Generic Extra Deck finisher (Runick, Purrely)", "share_pct": 40}
+  ],
+  "Knightmare Phoenix": [
+    {"deck": "Generic Link staple (Branded, Floowandereeze)", "share_pct": 40}
+  ],
+  "I:P Masquerena": [
+    {"deck": "Generic Link staple (almost any deck with 2 monsters)", "share_pct": 55}
+  ],
+  "Apollousa, Bow of the Goddess": [
+    {"deck": "Generic Link staple (Floowandereeze, Mannadium)", "share_pct": 35}
+  ],
+  "Accesscode Talker": [
+    {"deck": "Generic Link finisher (Link-heavy decks)", "share_pct": 45}
+  ],
+  "Borreload Savage Dragon": [
+    {"deck": "Generic Synchro/Link finisher (Dragon Link)", "share_pct": 30}
+  ],
+  "Blue-Eyes White Dragon": [
+    {"deck": "Blue-Eyes", "share_pct": 95}
+  ],
+  "The White Stone of Ancients": [
+    {"deck": "Blue-Eyes", "share_pct": 80}
+  ],
+  "Sage with Eyes of Blue": [
+    {"deck": "Blue-Eyes", "share_pct": 75}
+  ],
+  "Dragon Spirit of White": [
+    {"deck": "Blue-Eyes", "share_pct": 60}
+  ],
+  "Blue-Eyes Twin Burst Dragon": [
+    {"deck": "Blue-Eyes", "share_pct": 55}
+  ],
+  "Elemental HERO Sunrise": [
+    {"deck": "HERO", "share_pct": 60}
+  ],
+  "Elemental HERO Stratos": [
+    {"deck": "HERO", "share_pct": 70},
+    {"deck": "Generic searcher (Fusion decks)", "share_pct": 15}
+  ],
+  "Dark Magician": [
+    {"deck": "Dark Magician / Spellcaster", "share_pct": 90}
+  ],
+  "Dark Magician Girl": [
+    {"deck": "Dark Magician / Spellcaster", "share_pct": 80}
+  ],
+  "Red-Eyes Black Dragon": [
+    {"deck": "Red-Eyes", "share_pct": 90}
+  ],
+  "Exodia the Forbidden One": [
+    {"deck": "Exodia OTK", "share_pct": 95}
+  ],
+  "Left Arm of the Forbidden One": [
+    {"deck": "Exodia OTK", "share_pct": 95}
+  ],
+  "Right Arm of the Forbidden One": [
+    {"deck": "Exodia OTK", "share_pct": 95}
+  ],
+  "Left Leg of the Forbidden One": [
+    {"deck": "Exodia OTK", "share_pct": 95}
+  ],
+  "Right Leg of the Forbidden One": [
+    {"deck": "Exodia OTK", "share_pct": 95}
+  ],
+  "Chaos Emperor Dragon - Envoy of the End": [
+    {"deck": "Chaos Control (GOAT era)", "share_pct": 60}
+  ],
+  "Black Luster Soldier - Envoy of the Beginning": [
+    {"deck": "Chaos Control (GOAT era)", "share_pct": 70}
+  ],
+  "Sinister Serpent": [
+    {"deck": "GOAT-era Control staple", "share_pct": 40}
+  ],
+  "Mystical Space Typhoon": [
+    {"deck": "Generic backrow removal staple (all eras)", "share_pct": 60}
+  ],
+  "Pot of Greed": [
+    {"deck": "Generic draw staple (pre-ban eras / GOAT / Edison)", "share_pct": 90}
+  ],
+  "Graceful Charity": [
+    {"deck": "Generic draw staple (GOAT / Edison eras)", "share_pct": 80}
+  ],
+  "Confiscation": [
+    {"deck": "GOAT-era Control staple", "share_pct": 55}
+  ],
+  "Reasoning": [
+    {"deck": "Monarch / Chaos decks (GOAT era)", "share_pct": 40}
+  ],
+  "Thestalos the Firestorm Monarch": [
+    {"deck": "Monarch (GOAT / Edison eras)", "share_pct": 70}
+  ],
+  "Caius the Shadow Monarch": [
+    {"deck": "Monarch (Edison era)", "share_pct": 70}
+  ],
+  "Debris Dragon": [
+    {"deck": "Synchro toolbox (Edison / HAT eras)", "share_pct": 55}
+  ],
+  "Dandylion": [
+    {"deck": "Synchro toolbox (Edison / HAT eras)", "share_pct": 50}
+  ],
+  "Rescue Rabbit": [
+    {"deck": "Xyz toolbox (HAT era)", "share_pct": 60}
+  ],
+  "Mermail Abyssgunde": [
+    {"deck": "Mermail (HAT era)", "share_pct": 65}
+  ],
+  "Atlantean Dragoons": [
+    {"deck": "Mermail (HAT era)", "share_pct": 60}
+  ],
+  "Spellbook of Judgment": [
+    {"deck": "Spellbook / Prophecy (HAT era)", "share_pct": 70}
+  ]
+}

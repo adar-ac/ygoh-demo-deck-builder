@@ -1,0 +1,4 @@
+__pycache__/
+*.pyc
+decks/
+.streamlit/user_theme.json
