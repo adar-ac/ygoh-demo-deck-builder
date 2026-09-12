@@ -116,15 +116,21 @@ page = st.number_input("Page", 1, total_pages, 1) if total_pages > 1 else 1
 page_slice = results.iloc[(page - 1) * PAGE_SIZE: page * PAGE_SIZE]
 
 
+target_deck = deck_manager.load_deck(user, target_deck_name) if user and target_deck_name != "(none)" else None
+
+
 def add_to_deck(card: dict, zone: str):
-    if target_deck_name == "(none)":
+    if not target_deck:
         st.warning("Pick a target deck in the sidebar first.")
         return
-    deck = deck_manager.load_deck(user, target_deck_name)
-    deck_manager.push_undo(deck["name"], deck)
-    deck[zone].append(int(card["id"]))
-    deck_manager.save_deck(user, deck)
-    st.toast(f"Added {card['name']} to {zone} of '{deck['name']}'")
+    allowed, reason = deck_manager.can_add_card(target_deck, card["name"], int(card["id"]), target_deck["format"])
+    if not allowed:
+        st.toast(f"🚫 {reason}", icon="🚫")
+        return
+    deck_manager.push_undo(target_deck["name"], target_deck)
+    target_deck[zone].append(int(card["id"]))
+    deck_manager.save_deck(user, target_deck)
+    st.toast(f"✅ Added {card['name']} to {zone} of '{target_deck['name']}'")
 
 
 N_COLS = 7
@@ -140,17 +146,26 @@ for i, (_, row) in enumerate(page_slice.iterrows()):
                         unsafe_allow_html=True)
             st.caption(ui_cards.monster_stat_line(card) or card["type"])
 
+            maxed_in_target = False
+            if target_deck:
+                cur = deck_manager.copies_in_deck(target_deck, int(card["id"]))
+                lim = banlist.max_copies(card["name"], target_deck["format"])
+                maxed_in_target = cur >= lim
+                st.caption(f"⚠️ In '{target_deck['name']}': {cur}/{lim} (max reached)" if maxed_in_target
+                           else f"In '{target_deck['name']}': {cur}/{lim}")
+            add_disabled = status == "Forbidden" or maxed_in_target
+
             is_extra = deck_manager.is_extra_deck_type(card["type"])
             b1, b2 = st.columns(2)
             with b1:
                 main_label = "➕ Extra" if is_extra else "➕ Main"
                 main_zone = "extra" if is_extra else "main"
                 if st.button(main_label, key=f"add_main_{card['id']}", use_container_width=True,
-                             disabled=(status == "Forbidden")):
+                             disabled=add_disabled):
                     add_to_deck(card, main_zone)
             with b2:
                 if st.button("➕ Side", key=f"add_side_{card['id']}", use_container_width=True,
-                             disabled=(status == "Forbidden")):
+                             disabled=add_disabled):
                     add_to_deck(card, "side")
 
             with st.expander("Details / Used In"):

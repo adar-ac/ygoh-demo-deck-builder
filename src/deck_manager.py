@@ -8,6 +8,8 @@ import re
 
 import streamlit as st
 
+from src import banlist
+
 DECKS_DIR = os.path.join(os.path.dirname(__file__), "..", "decks")
 os.makedirs(DECKS_DIR, exist_ok=True)
 
@@ -91,6 +93,22 @@ def copies_in_deck(deck: dict, card_id: int) -> int:
     for zone in ("main", "extra", "side"):
         total += deck.get(zone, []).count(card_id)
     return total
+
+
+def can_add_card(deck: dict, card_name: str, card_id: int, format_name: str) -> tuple:
+    """Whether one more copy of this card is allowed under the deck's banlist
+    format (Unlimited=3, Semi-Limited=2, Limited=1, Forbidden=0, counted
+    across Main+Extra+Side combined -- same as real tournament rules).
+    Returns (allowed, reason) -- reason is a user-facing message when blocked."""
+    current = copies_in_deck(deck, card_id)
+    limit = banlist.max_copies(card_name, format_name)
+    if current >= limit:
+        status = banlist.card_status(card_name, format_name)
+        if limit == 0:
+            return False, f"'{card_name}' is Forbidden in {format_name} — it can't be added at all."
+        return False, (f"You can't add more copies of '{card_name}' — it's {status} in {format_name} "
+                        f"(max {limit}, you already have {current}).")
+    return True, ""
 
 
 # ---- Undo stack, kept in session_state (already isolated per browser

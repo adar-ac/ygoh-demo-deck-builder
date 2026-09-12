@@ -148,7 +148,7 @@ else:
 
 st.divider()
 
-# ---- Zone rendering ----
+# ---- Search-and-add (left) + live decklist (right), no tab switching ----
 
 
 def remove_one(zone, card_id):
@@ -159,10 +159,14 @@ def remove_one(zone, card_id):
 
 
 def add_card(card, zone):
+    allowed, reason = deck_manager.can_add_card(deck, card["name"], int(card["id"]), fmt)
+    if not allowed:
+        st.toast(f"🚫 {reason}", icon="🚫")
+        return
     deck_manager.push_undo(active, deck)
     deck[zone].append(int(card["id"]))
     deck_manager.save_deck(user, deck)
-    st.toast(f"Added {card['name']} to {zone}")
+    st.toast(f"✅ Added {card['name']} to {zone}")
     st.rerun()
 
 
@@ -174,7 +178,7 @@ def _search_names_for_add(searchterm: str):
     return hits.head(20).tolist()
 
 
-def render_add_cards_tab():
+def render_add_cards_section():
     row1 = st.columns([2, 1, 1])
     with row1[0]:
         picked = st_searchbox(
@@ -202,12 +206,12 @@ def render_add_cards_tab():
     ).sort_values("name")
 
     st.write(f"**{len(results):,}** cards match.")
-    PAGE_SIZE = 28
+    PAGE_SIZE = 21
     total_pages = max(1, math.ceil(len(results) / PAGE_SIZE))
     page = st.number_input("Page", 1, total_pages, 1, key="deck_add_page") if total_pages > 1 else 1
     page_slice = results.iloc[(page - 1) * PAGE_SIZE: page * PAGE_SIZE]
 
-    n_cols = 7
+    n_cols = 3
     cols = st.columns(n_cols)
     for i, (_, row) in enumerate(page_slice.iterrows()):
         card = row.to_dict()
@@ -219,52 +223,63 @@ def render_add_cards_tab():
                 st.markdown(f"<div style='font-size:0.8rem;font-weight:600'>{card['name']}</div>",
                             unsafe_allow_html=True)
                 st.caption(ui_cards.monster_stat_line(card) or card["type"])
+
+                current = deck_manager.copies_in_deck(deck, int(card["id"]))
+                limit = banlist.max_copies(card["name"], fmt)
+                maxed = current >= limit
+                st.caption(f"⚠️ In deck: {current}/{limit} (max reached)" if maxed else f"In deck: {current}/{limit}")
+
                 is_extra = deck_manager.is_extra_deck_type(card["type"])
                 b1, b2 = st.columns(2)
                 with b1:
                     label = "➕ Extra" if is_extra else "➕ Main"
                     zone = "extra" if is_extra else "main"
-                    if st.button(label, key=f"deck_add_main_{card['id']}", use_container_width=True,
-                                 disabled=(status == "Forbidden")):
+                    if st.button(label, key=f"deck_add_main_{card['id']}", use_container_width=True, disabled=maxed):
                         add_card(card, zone)
                 with b2:
-                    if st.button("➕ Side", key=f"deck_add_side_{card['id']}", use_container_width=True,
-                                 disabled=(status == "Forbidden")):
+                    if st.button("➕ Side", key=f"deck_add_side_{card['id']}", use_container_width=True, disabled=maxed):
                         add_card(card, "side")
 
 
-def render_zone(zone_key: str, label: str):
+def render_zone_compact(zone_key: str, label: str, max_n: int):
     ids = deck[zone_key]
+    st.markdown(f"**{label}** — {len(ids)}/{max_n}")
     if not ids:
-        st.caption(f"No cards in {label} deck yet — use the '🔍 Add Cards' tab to find some.")
+        st.caption("Empty — add cards on the left.")
         return
     counter = Counter(ids)
-    n_cols = 8
-    cols = st.columns(n_cols)
-    for i, (card_id, n) in enumerate(sorted(counter.items(), key=lambda kv: CARD_BY_ID.get(kv[0], {}).get("name", ""))):
+    for card_id, n in sorted(counter.items(), key=lambda kv: CARD_BY_ID.get(kv[0], {}).get("name", "")):
         card = CARD_BY_ID.get(card_id)
         if not card:
             continue
-        with cols[i % n_cols]:
+        status = banlist.card_status(card["name"], fmt)
+        row = st.columns([1, 4, 1])
+        with row[0]:
             img = card.get("image_url_small") or card.get("image_url")
-            status = banlist.card_status(card["name"], fmt)
-            st.markdown(ui_cards.thumbnail_html(img, status), unsafe_allow_html=True)
-            st.markdown(f"<div style='font-size:0.8rem'><b>{card['name']}</b> ×{n}</div>",
+            st.markdown(ui_cards.thumbnail_html(img, status, width=44, height=64), unsafe_allow_html=True)
+        with row[1]:
+            st.markdown(f"<div style='font-size:0.8rem;line-height:1.25'><b>{card['name']}</b><br>×{n}</div>",
                         unsafe_allow_html=True)
-            if st.button("－ Remove one", key=f"rm_{zone_key}_{card_id}", use_container_width=True):
+        with row[2]:
+            if st.button("－", key=f"rm_{zone_key}_{card_id}", use_container_width=True):
                 remove_one(zone_key, card_id)
 
 
-tabs = st.tabs(["🔍 Add Cards", "Main Deck", "Extra Deck", "Side Deck", "Export"])
-with tabs[0]:
-    render_add_cards_tab()
-with tabs[1]:
-    render_zone("main", "Main")
-with tabs[2]:
-    render_zone("extra", "Extra")
-with tabs[3]:
-    render_zone("side", "Side")
-with tabs[4]:
+left, right = st.columns([3, 2])
+with left:
+    st.markdown("### 🔍 Find & Add Cards")
+    render_add_cards_section()
+with right:
+    st.markdown("### 📋 Your Deck")
+    with st.container(height=750, border=True):
+        render_zone_compact("main", "Main Deck", deck_manager.MAIN_MAX)
+        st.divider()
+        render_zone_compact("extra", "Extra Deck", deck_manager.EXTRA_MAX)
+        st.divider()
+        render_zone_compact("side", "Side Deck", deck_manager.SIDE_MAX)
+
+st.divider()
+with st.expander("📤 Export deck (YDK / YDKE)"):
     st.markdown("##### YDK file")
     ydk_text = ydk.deck_to_ydk(deck)
     st.download_button("⬇️ Download .ydk", ydk_text, file_name=f"{deck['name']}.ydk", mime="text/plain")
