@@ -1,6 +1,8 @@
+import math
 from collections import Counter
 
 import streamlit as st
+from streamlit_searchbox import st_searchbox
 
 from src import banlist, card_db, deck_manager, identity, theme, ui_cards, ydk
 
@@ -156,10 +158,85 @@ def remove_one(zone, card_id):
     st.rerun()
 
 
+def add_card(card, zone):
+    deck_manager.push_undo(active, deck)
+    deck[zone].append(int(card["id"]))
+    deck_manager.save_deck(user, deck)
+    st.toast(f"Added {card['name']} to {zone}")
+    st.rerun()
+
+
+def _search_names_for_add(searchterm: str):
+    st.session_state["deck_add_name_live"] = searchterm
+    if not searchterm:
+        return []
+    hits = df[df["name"].str.contains(searchterm, case=False, na=False, regex=False)]["name"]
+    return hits.head(20).tolist()
+
+
+def render_add_cards_tab():
+    row1 = st.columns([2, 1, 1])
+    with row1[0]:
+        picked = st_searchbox(
+            _search_names_for_add, label="Card name", placeholder="Start typing a card name...",
+            key="deck_add_searchbox", clear_on_submit=False,
+        )
+    name_query = picked or st.session_state.get("deck_add_name_live", "")
+    categories = row1[1].multiselect("Category", ["Monster", "Spell", "Trap", "Skill"], key="deck_add_cat")
+    archetypes = row1[2].multiselect("Archetype", card_db.all_archetypes(), key="deck_add_arch")
+
+    with st.expander("More filters"):
+        f1 = st.columns(3)
+        attributes = f1[0].multiselect("Attribute", card_db.ATTRIBUTES, key="deck_add_attr")
+        ability_tags = f1[1].multiselect("Ability / summon type", card_db.ABILITY_TAGS, key="deck_add_ability")
+        text_query = f1[2].text_input("Card text contains", key="deck_add_text")
+
+    if not (name_query or categories or archetypes or attributes or ability_tags or text_query):
+        st.caption("Start typing a name or pick a filter above to find cards to add.")
+        return
+
+    results = card_db.search_cards(
+        df, name_query=name_query, text_query=text_query,
+        categories=categories or None, archetypes=archetypes or None,
+        attributes=attributes or None, ability_tags=ability_tags or None,
+    ).sort_values("name")
+
+    st.write(f"**{len(results):,}** cards match.")
+    PAGE_SIZE = 28
+    total_pages = max(1, math.ceil(len(results) / PAGE_SIZE))
+    page = st.number_input("Page", 1, total_pages, 1, key="deck_add_page") if total_pages > 1 else 1
+    page_slice = results.iloc[(page - 1) * PAGE_SIZE: page * PAGE_SIZE]
+
+    n_cols = 7
+    cols = st.columns(n_cols)
+    for i, (_, row) in enumerate(page_slice.iterrows()):
+        card = row.to_dict()
+        with cols[i % n_cols]:
+            with st.container(border=True):
+                img = card.get("image_url_small") or card.get("image_url")
+                status = banlist.card_status(card["name"], fmt)
+                st.markdown(ui_cards.thumbnail_html(img, status), unsafe_allow_html=True)
+                st.markdown(f"<div style='font-size:0.8rem;font-weight:600'>{card['name']}</div>",
+                            unsafe_allow_html=True)
+                st.caption(ui_cards.monster_stat_line(card) or card["type"])
+                is_extra = deck_manager.is_extra_deck_type(card["type"])
+                b1, b2 = st.columns(2)
+                with b1:
+                    label = "➕ Extra" if is_extra else "➕ Main"
+                    zone = "extra" if is_extra else "main"
+                    if st.button(label, key=f"deck_add_main_{card['id']}", use_container_width=True,
+                                 disabled=(status == "Forbidden")):
+                        add_card(card, zone)
+                with b2:
+                    if st.button("➕ Side", key=f"deck_add_side_{card['id']}", use_container_width=True,
+                                 disabled=(status == "Forbidden")):
+                        add_card(card, "side")
+
+
 def render_zone(zone_key: str, label: str):
     ids = deck[zone_key]
     if not ids:
-        st.caption(f"No cards in {label} deck yet — add some from Card Search.")
+        st.caption(f"No cards in {label} deck yet — use the '🔍 Add Cards' tab to find some.")
         return
     counter = Counter(ids)
     n_cols = 8
@@ -178,14 +255,16 @@ def render_zone(zone_key: str, label: str):
                 remove_one(zone_key, card_id)
 
 
-tabs = st.tabs(["Main Deck", "Extra Deck", "Side Deck", "Export"])
+tabs = st.tabs(["🔍 Add Cards", "Main Deck", "Extra Deck", "Side Deck", "Export"])
 with tabs[0]:
-    render_zone("main", "Main")
+    render_add_cards_tab()
 with tabs[1]:
-    render_zone("extra", "Extra")
+    render_zone("main", "Main")
 with tabs[2]:
-    render_zone("side", "Side")
+    render_zone("extra", "Extra")
 with tabs[3]:
+    render_zone("side", "Side")
+with tabs[4]:
     st.markdown("##### YDK file")
     ydk_text = ydk.deck_to_ydk(deck)
     st.download_button("⬇️ Download .ydk", ydk_text, file_name=f"{deck['name']}.ydk", mime="text/plain")
